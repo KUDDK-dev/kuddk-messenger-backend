@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_session, AsyncSession
 from starlette.responses import JSONResponse
 
+from auth.jwt_utils import hash_password
 from postgres.database import engine, get_session, async_sessionmaker
 from postgres.models import RoleModel, StatusModel, UserModel
 
@@ -67,7 +68,7 @@ async def initialize_users():
         users_to_create = [
             UserModel(
                 username="ahmed",
-                password="ahmed",
+                password=hash_password("ahmed"),
                 bio="ahmed",
                 first_name="ahmed",
                 last_name="ahmed",

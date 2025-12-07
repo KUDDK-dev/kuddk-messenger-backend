@@ -105,8 +105,12 @@ async def get_current_user(token: str, session: SessionDep):
     return user
 
 def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+    encoded_bytes = base64.b64encode(password.encode('utf-8'))
+    return encoded_bytes.decode('utf-8')
 
 def verify_password(password: str, hashed_password: str) -> bool:
-    hashed_input = hashlib.sha256(password.encode('utf-8')).hexdigest()
-    return hashed_input == hashed_password
+    try:
+        encoded = base64.b64encode(password.encode('utf-8')).decode('utf-8')
+        return encoded == hashed_password
+    except:
+        return False
