@@ -1,0 +1,12 @@
+fastapi
+pydantic
+SQLAlchemy
+uvicorn
+asyncpg
+psycopg2-binary
+pydantic[email]
+python-dotenv
+datetime
+pyjwt
+passlib[bcrypt]
+bcrypt
