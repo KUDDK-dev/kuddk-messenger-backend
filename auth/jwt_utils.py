@@ -1,4 +1,5 @@
 import base64
+import hashlib
 from datetime import timedelta, timezone, datetime
 from tokenize import Token
 from typing import Union
@@ -104,9 +105,8 @@ async def get_current_user(token: str, session: SessionDep):
     return user
 
 def hash_password(password: str) -> str:
-    hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    return hashed.decode('utf-8')
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
-# Проверка пароля при логине
 def verify_password(password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+    hashed_input = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    return hashed_input == hashed_password
