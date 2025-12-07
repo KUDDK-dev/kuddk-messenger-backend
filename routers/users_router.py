@@ -4,10 +4,12 @@ from http.client import HTTPException
 from fastapi import APIRouter, Depends
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from auth.auth_utils import require_role
 from auth.jwt_utils import get_current_user, hash_password
 from postgres.database import SessionDep
+from postgres.dtos.user_dto import convert_user_to_dto, convert_users_to_dtos
 
 from postgres.models import UserModel, InterestModel, SkillModel, RoleModel, StatusModel
 from schemas import UserAddSchema, UserEditSchema
@@ -83,17 +85,26 @@ async def add_user(
 
 @router.get('')
 async def get_users(session: SessionDep):
-    query = select(UserModel)
-    result = await session.execute(query)
+    query = select(UserModel).options(
+        selectinload(UserModel.status),
+        selectinload(UserModel.skills),
+        selectinload(UserModel.interests),
+        selectinload(UserModel.looking_for),
+        selectinload(UserModel.events),
+        selectinload(UserModel.roles)
+    )
 
-    return result.scalars().all()
+    result = await session.execute(query)
+    users = result.scalars().all()
+
+    return convert_users_to_dtos(users)
 
 @router.get('/{user_id}')
 async def get_user(user_id: int, session: SessionDep):
     query = select(UserModel).where(UserModel.id == user_id)
     result = await session.execute(query)
 
-    return result.scalars().first()
+    return convert_user_to_dto(result.scalars().first())
 
 @router.put('/{user_id}')
 async def edit_user(
